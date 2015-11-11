@@ -54,7 +54,7 @@ var packetTracer = (function () {
      *   @param success is a callback which received the URL of the new session as a parameter.
      */
     function createSession(apiURL, fileToOpen, success) {
-        var newSession = { fileUrl: (fileToOpen!=null)? fileToOpen: null };
+        var newSession = { fileUrl: fileToOpen };
         return postJSON(apiURL + '/sessions', newSession, function(data, status, xhr) {
             var newSessionURL = xhr.getResponseHeader('Location');
             success(newSessionURL);
