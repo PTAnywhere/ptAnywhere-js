@@ -17,7 +17,7 @@ describe("packetTracer module", function() {
   });
 
   it("creates device after deleting", function(done) {
-    var apiURL = 'http://192.168.34.202:8080/api/v1/sessions/ZJMWHZMGSci8jcajnItapg--';
+    var apiURL = 'http://192.168.34.202:8080/api/v1/sessions/zeOItQSxRCS03DwAA8sQsg--';
     var cli = new packetTracer
                     .Client(apiURL, function() {
                       fail("The session has expired.");
@@ -28,16 +28,18 @@ describe("packetTracer module", function() {
       cli.removeDevice(d).done(function() {
         cli.addDevice(d, function() {
           done();
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+          console.log(textStatus);
+          done.fail("The device was not added.");
         });
       }).fail(function() {
-        fail("The device was not removed.");
+        done.fail("The device was not removed.");
       });
     },
-    function(tryCount, maxRetries, UNAVAILABLE) {
-
+    function(tryCount, maxRetries, errorCode) {
     }).fail(function() {
-      fail("The network was not loaded.");
+      done.fail("The network was not loaded.");
     });
-  }, 10000);
+  });
 
 });
