@@ -2,8 +2,11 @@
 
 Javascript client for PTAnywhere API.
 
+## Test it with Jasmine
 
-## Use Karma
+To test this library using only the [Jasmine testing framework](http://jasmine.github.io) open the file _test/SpecRunner.html_.
+
+## Test it with Karma
 
 You can test this library using [Karma](http://karma-runner.github.io) by following these steps:
 
