@@ -37,6 +37,9 @@ var packetTracer = (function () {
 
     function deleteHttp(url, callback, customSettings) {
         var settings = {
+            headers: {
+                Accept: 'application/json'
+            },
             type: 'DELETE',
             timeout: 2000,
             success: callback
