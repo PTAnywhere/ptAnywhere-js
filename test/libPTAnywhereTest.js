@@ -12,24 +12,22 @@ describe("packetTracer module", function() {
         done();
       })
       .fail( function() {
-        fail("Session creation has failed.");
+        done.fail("Session creation has failed.");
       });
   });
 
   it("creates device after deleting", function(done) {
-    var apiURL = 'http://192.168.34.202:8080/api/v1/sessions/zeOItQSxRCS03DwAA8sQsg--';
+    var apiURL = 'http://192.168.34.202:8080/api/v1/sessions/xclzDg85Qvi_4VHL0sBmkA--';
     var cli = new packetTracer
                     .Client(apiURL, function() {
                       fail("The session has expired.");
                     });
     cli.getNetwork(function(network) {
       var d = network.devices[0];
-      console.log(d);
       cli.removeDevice(d).done(function() {
         cli.addDevice(d, function() {
           done();
         }).fail(function(jqXHR, textStatus, errorThrown) {
-          console.log(textStatus);
           done.fail("The device was not added.");
         });
       }).fail(function() {

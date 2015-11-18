@@ -40,7 +40,7 @@ var packetTracer = (function () {
     function deleteHttp(url, callback, customSettings) {
         var settings = {
             headers: {
-                Accept: 'application/json'
+              Accept: 'application/json'
             },
             type: 'DELETE',
             timeout: 2000,
@@ -127,10 +127,12 @@ var packetTracer = (function () {
     };
 
     PTClient.prototype.removeDevice = function(device) {
-        return deleteHttp(device.url, function(result) {
+        var ret = deleteHttp(device.url, function(result) {
                 console.log('The device has been deleted successfully.');
+                getJSON(device.url);
             }, this.customSettings).
             fail(function(data) { console.error('Something went wrong in the device removal.'); });
+        return ret;
     };
 
     PTClient.prototype.modifyDevice = function(device, deviceLabel, defaultGateway, callback) { // modify
