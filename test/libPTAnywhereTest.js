@@ -41,22 +41,28 @@ describe("packetTracer module", function() {
       });
     });
 
+
+    function getNetwork(done, success) {
+      client.getNetwork(success,
+        function(tryCount, maxRetries, errorCode) {
+          done.fail("Timeout getting the network.");
+        }).
+      fail(function() {
+        done.fail("The network was not loaded.");
+      });
+    }
+
     it("retrieves network", function(done) {
-      client.getNetwork(function(network) {
+      getNetwork(done, function(network) {
         expect(network.devices.length).toBe(5);
         expect(network.edges.length).toBe(4);
         done();
-      },
-      function(tryCount, maxRetries, errorCode) {
-        done.fail("Timeout getting the network.");
-      }).fail(function() {
-        done.fail("The network was not loaded.");
       });
     });
 
     // Related issue: https://github.com/PTAnywhere/ptAnywhere-js/issues/1
     it("creates device after deleting device", function(done) {
-      client.getNetwork(function(network) {
+      getNetwork(done, function(network) {
         var d = network.devices[0];
         client.removeDevice(d).done(function() {
           client.addDevice({group: 'pc', x: 0, y: 0}, function(addedDevice) {
@@ -70,17 +76,12 @@ describe("packetTracer module", function() {
         }).fail(function() {
           done.fail("The device was not removed.");
         });
-      },
-      function(tryCount, maxRetries, errorCode) {
-        done.fail("Timeout getting the network.");
-      }).fail(function() {
-        done.fail("The network was not loaded.");
       });
     });
 
     // Related issue: https://github.com/PTAnywhere/ptAnywhere-js/issues/1
     it("creates device after deleting link", function(done) {
-      client.getNetwork(function(network) {
+      getNetwork(done, function(network) {
         var l = network.edges[0];
         client.removeLink(l).done(function() {
           client.addDevice({group: 'pc', x: 0, y: 0}, function(addedDevice) {
@@ -94,11 +95,6 @@ describe("packetTracer module", function() {
         }).fail(function() {
           done.fail("The link was not removed.");
         });
-      },
-      function(tryCount, maxRetries, errorCode) {
-        done.fail("Timeout getting the network.");
-      }).fail(function() {
-        done.fail("The network was not loaded.");
       });
     });
 
