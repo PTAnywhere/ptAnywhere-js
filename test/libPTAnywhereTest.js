@@ -47,7 +47,10 @@ describe("packetTracer module", function() {
       client.getNetwork(function(network) {
         var d = network.devices[0];
         client.removeDevice(d).done(function() {
-          client.addDevice({group: 'pc', x: 0, y: 0}, function() {
+          client.addDevice({group: 'pc', x: 0, y: 0}, function(addedDevice) {
+            expect(addedDevice.group).toBe('pcDevice');
+            expect(addedDevice.x).toBe(0);
+            expect(addedDevice.y).toBe(0);
             done();
           }).fail(function(jqXHR, textStatus, errorThrown) {
             done.fail("The device was not added.");
@@ -68,7 +71,10 @@ describe("packetTracer module", function() {
       client.getNetwork(function(network) {
         var l = network.edges[0];
         client.removeLink(l).done(function() {
-          client.addDevice({group: 'pc', x: 0, y: 0}, function() {
+          client.addDevice({group: 'pc', x: 0, y: 0}, function(addedDevice) {
+            expect(addedDevice.group).toBe('pcDevice');
+            expect(addedDevice.x).toBe(0);
+            expect(addedDevice.y).toBe(0);
             done();
           }).fail(function(jqXHR, textStatus, errorThrown) {
             done.fail("The device was not added.");
