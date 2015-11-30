@@ -118,7 +118,7 @@ describe("packetTracer module", function() {
     it("gets all ports for a device", function(done) {
       getDevice(done, 'MySwitch', function(mySwitch) {
         var expectedPorts = ['Vlan1', 'GigabitEthernet0/1', 'GigabitEthernet0/2'];
-        for (var i=0; i<25; i++) {
+        for (var i=1; i<25; i++) {
           expectedPorts.push('FastEthernet0/' + i);
         }
         client.getAllPorts(mySwitch, function(ports) {
@@ -146,6 +146,43 @@ describe("packetTracer module", function() {
         }, function() {
           done.fail("The session expired.");
         });
+      });
+    });
+
+    function getPort(done, deviceName, portName, success) {
+      getDevice(done, deviceName, function(device) {
+        client.getAllPorts(device, function(ports) {
+          var retPort = null;
+          for(var i in ports) {
+            if (ports[i].portName===portName) {
+              retPort = ports[i];
+            }
+          }
+          if (retPort==null) {
+            done.fail('Port not found in the device.');
+          } else {
+            success(retPort);
+          }
+        }, function() {
+          done.fail("The ports could not be retrieved.");
+        }, function() {
+          done.fail("The session expired.");
+        });
+      });
+    }
+
+    it("modifies ports", function(done) {
+      getPort(done, 'RightHandSide', 'FastEthernet0', function(port) {
+        client.modifyPort(port.url, '10.3.2.1', '255.255.0.0').
+          done(function(modifiedPort) {
+            expect(modifiedPort.portName).toEqual('FastEthernet0');
+            expect(modifiedPort.portIpAddress).toEqual('10.3.2.1');
+            expect(modifiedPort.portSubnetMask).toEqual('255.255.0.0');
+            done();
+          }).
+          fail(function() {
+            done.fail("The port could not be modified.");
+          });
       });
     });
 
