@@ -9,7 +9,7 @@ var packetTracer = (function () {
     var ERROR_TIMEOUT = 2;
 
     // Private utility functions
-    function requestJSON(verb, url, data, callback, customSettings) {
+    function requestJSON(verb, url, data, customSettings) {
         var settings = { // Default values
             headers: {
                 Accept: 'application/json',
@@ -18,33 +18,31 @@ var packetTracer = (function () {
             type: verb,
             data: (data!=null)? JSON.stringify(data): null,
             dataType: 'json',
-            timeout: 2000,
-            success: callback
+            timeout: 2000
         };
         for (var attrName in customSettings) { settings[attrName] = customSettings[attrName]; }  // merge
         return $.ajax(url, settings);
     }
 
-    function getJSON(url, callback, customSettings) {
-        return requestJSON('GET', url, null, callback, customSettings);
+    function getJSON(url, customSettings) {
+        return requestJSON('GET', url, null, customSettings);
     }
 
-    function postJSON(url, data, callback, customSettings) {
-        return requestJSON('POST', url, data, callback, customSettings);
+    function postJSON(url, data, customSettings) {
+        return requestJSON('POST', url, data, customSettings);
     }
 
-    function putJSON(url, data, callback, customSettings) {
-        return requestJSON('PUT', url, data, callback, customSettings);
+    function putJSON(url, data, customSettings) {
+        return requestJSON('PUT', url, data, customSettings);
     }
 
-    function deleteHttp(url, callback, customSettings) {
+    function deleteHttp(url, customSettings) {
         var settings = {
             headers: {
               Accept: 'application/json'
             },
             type: 'DELETE',
-            timeout: 2000,
-            success: callback
+            timeout: 2000
         };
         for (var attrName in customSettings) { settings[attrName] = customSettings[attrName]; }  // merge
         return $.ajax(url, settings);
@@ -60,11 +58,12 @@ var packetTracer = (function () {
      */
     function createSession(apiURL, fileToOpen, success) {
         var newSession = { fileUrl: fileToOpen };
-        return postJSON(apiURL + '/sessions', newSession, function(newSessionURL, status, xhr) {
-            // The following does not work in Jasmine.
-            //var newSessionURL = xhr.getResponseHeader('Location');
-            success(newSessionURL);
-        }, {});
+        return postJSON(apiURL + '/sessions', newSession, {}).
+                  done(function(newSessionURL, status, xhr) {
+                    // The following does not work in Jasmine.
+                    //var newSessionURL = xhr.getResponseHeader('Location');
+                    success(newSessionURL);
+                  });
     }
 
     /**
@@ -73,7 +72,7 @@ var packetTracer = (function () {
      *   @param success is a callback which received the URL of the new session as a parameter.
      */
     function deleteSession(sessionURL, success) {
-        return deleteHttp(sessionURL, success, {});
+        return deleteHttp(sessionURL, {}).done(success);
     }
 
 
@@ -124,23 +123,28 @@ var packetTracer = (function () {
                 }
             }
         };
-        return getJSON(this.apiURL + '/network', callback, moreSpecificSettings);
+        return getJSON(this.apiURL + '/network', moreSpecificSettings).done(callback);
     };
 
     PTClient.prototype.addDevice = function(newDevice, callback) {
-        return postJSON( this.apiURL + '/devices', newDevice,
-            function(data) {
-                console.log('The device was created successfully.');
-                callback(data);
-            }, this.customSettings).
-            fail(function(data) { console.error('Something went wrong in the device creation.'); });
+        return postJSON( this.apiURL + '/devices', newDevice, this.customSettings).
+                done(function(data) {
+                    console.log('The device was created successfully.');
+                    callback(data);
+                }).
+                fail(function(data) {
+                    console.error('Something went wrong in the device creation.');
+                });
     };
 
     PTClient.prototype.removeDevice = function(device) {
-        return deleteHttp(device.url, function(result) {
-                console.log('The device has been deleted successfully.');
-            }, this.customSettings).
-            fail(function(data) { console.error('Something went wrong in the device removal.'); });
+        return deleteHttp(device.url, this.customSettings).
+                done(function(result) {
+                    console.log('The device has been deleted successfully.');
+                }).
+                fail(function(data) {
+                    console.error('Something went wrong in the device removal.');
+                });
     };
 
     PTClient.prototype.modifyDevice = function(device, deviceLabel, defaultGateway, callback) { // modify
@@ -149,26 +153,28 @@ var packetTracer = (function () {
         if (defaultGateway!="") {
             modification.defaultGateway = defaultGateway;
         }
-        return putJSON(device.url, modification,
-            function(result) {
-                console.log('The device has been modified successfully.');
-                result.defaultGateway = defaultGateway;  // FIXME PTPIC library!
-                callback(result);  // As the device has the same id, it should replace the older one.
-        }, this.customSettings).
-        fail(function(data) {
-            console.error('Something went wrong in the device modification.');
-        });
+        return putJSON(device.url, modification, this.customSettings).
+                done(function(result) {
+                    console.log('The device has been modified successfully.');
+                    result.defaultGateway = defaultGateway;  // FIXME PTPIC library!
+                    callback(result);  // As the device has the same id, it should replace the older one.
+                }).
+                fail(function(data) {
+                    console.error('Something went wrong in the device modification.');
+                });
     };
 
     PTClient.prototype.getAllPorts = function(device, callback) {
-        return getJSON(device.url + 'ports', callback, this.customSettings).
+        return getJSON(device.url + 'ports', this.customSettings).
+                done(callback).
                 fail(function() {
                     console.error('Ports for the device ' + device.id + ' could not be loaded. Possible timeout.');
                 });
     };
 
     PTClient.prototype.getAvailablePorts = function(device, cSuccess, cFail, cSessionExpired) {
-        return getJSON(device.url + 'ports?free=true', cSuccess, this.customSettings).
+        return getJSON(device.url + 'ports?free=true', this.customSettings).
+                done(cSuccess).
                 fail(function(data) {
                     if (data.status==410) {
                         cSessionExpired();
@@ -184,27 +190,29 @@ var packetTracer = (function () {
              portIpAddress: ipAddress,
              portSubnetMask: subnetMask
          };
-         return putJSON(portURL, modification,
-            function(result) {
-                console.log('The port has been modified successfully.');
-            }, this.customSettings).
-            fail(function(data) {
-                console.error('Something went wrong in the port modification.');
-            });
+         return putJSON(portURL, modification, this.customSettings).
+                done(function(result) {
+                    console.log('The port has been modified successfully.');
+                }).
+                fail(function(data) {
+                    console.error('Something went wrong in the port modification.');
+                });
     };
 
     PTClient.prototype.createLink = function(fromPortURL, toPortURL, doneCallback, successCallback) {
         var modification = {
             toPort: toPortURL
         };
-        return postJSON(fromPortURL + 'link', modification, function(response) {
-            console.log('The link has been created successfully.');
-            successCallback(response.id, response.url);
-        }, this.customSettings).
-        fail(function(data) {
-            console.error('Something went wrong in the link creation.');
-        }).
-        done(doneCallback);
+        return postJSON(fromPortURL + 'link', modification, this.customSettings).
+                done(function(response) {
+                    console.log('The link has been created successfully.');
+                    successCallback(response.id, response.url);
+                }).
+                fail(function(data) {
+                    console.error('Something went wrong in the link creation.');
+                }).
+                // FIXME check this!
+                done(doneCallback);
     };
 
     PTClient.prototype.removeLink = function(link) {
@@ -214,9 +222,10 @@ var packetTracer = (function () {
                       console.error('Something went wrong getting this link: ' + linkUrl + '.');
                   }).
                   then(function(data) {
-                    return deleteHttp(data.endpoints[0] + 'link', function(result) {
+                    return deleteHttp(data.endpoints[0] + 'link', this.customSettings).
+                            done(function(result) {
                                 console.log('The link has been deleted successfully.');
-                            }, this.customSettings).
+                            }).
                             fail(function(data) {
                                 console.error('Something went wrong in the link removal.');
                             });
