@@ -137,12 +137,10 @@ var packetTracer = (function () {
     };
 
     PTClient.prototype.removeDevice = function(device) {
-        var ret = deleteHttp(device.url, function(result) {
+        return deleteHttp(device.url, function(result) {
                 console.log('The device has been deleted successfully.');
-                getJSON(device.url);
             }, this.customSettings).
             fail(function(data) { console.error('Something went wrong in the device removal.'); });
-        return ret;
     };
 
     PTClient.prototype.modifyDevice = function(device, deviceLabel, defaultGateway, callback) { // modify
@@ -213,7 +211,6 @@ var packetTracer = (function () {
         return getJSON(link.url, function(data) {
                     deleteHttp(data.endpoints[0] + 'link', function(result) {
                         console.log('The link has been deleted successfully.');
-                        //getJSON(link.url);
                     }, this.customSettings).
                     fail(function(data) {
                         console.error('Something went wrong in the link removal.');
