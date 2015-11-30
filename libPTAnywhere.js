@@ -126,14 +126,13 @@ var packetTracer = (function () {
         return getJSON(this.apiURL + '/network', moreSpecificSettings).done(callback);
     };
 
-    PTClient.prototype.addDevice = function(newDevice, callback) {
+    PTClient.prototype.addDevice = function(newDevice) {
         return postJSON( this.apiURL + '/devices', newDevice, this.customSettings).
                 done(function(data) {
-                    console.log('The device was created successfully.');
-                    callback(data);
+                  console.log('The device was created successfully.');
                 }).
                 fail(function(data) {
-                    console.error('Something went wrong in the device creation.');
+                  console.error('Something went wrong in the device creation.');
                 });
     };
 
@@ -164,17 +163,15 @@ var packetTracer = (function () {
                 });
     };
 
-    PTClient.prototype.getAllPorts = function(device, callback) {
+    PTClient.prototype.getAllPorts = function(device) {
         return getJSON(device.url + 'ports', this.customSettings).
-                done(callback).
                 fail(function() {
                     console.error('Ports for the device ' + device.id + ' could not be loaded. Possible timeout.');
                 });
     };
 
-    PTClient.prototype.getAvailablePorts = function(device, cSuccess, cFail, cSessionExpired) {
+    PTClient.prototype.getAvailablePorts = function(device, cFail, cSessionExpired) {
         return getJSON(device.url + 'ports?free=true', this.customSettings).
-                done(cSuccess).
                 fail(function(data) {
                     if (data.status==410) {
                         cSessionExpired();
@@ -199,7 +196,7 @@ var packetTracer = (function () {
                 });
     };
 
-    PTClient.prototype.createLink = function(fromPortURL, toPortURL, doneCallback, successCallback) {
+    PTClient.prototype.createLink = function(fromPortURL, toPortURL, successCallback) {
         var modification = {
             toPort: toPortURL
         };
@@ -210,9 +207,7 @@ var packetTracer = (function () {
                 }).
                 fail(function(data) {
                     console.error('Something went wrong in the link creation.');
-                }).
-                // FIXME check this!
-                done(doneCallback);
+                });
     };
 
     PTClient.prototype.removeLink = function(link) {

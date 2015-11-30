@@ -61,15 +61,16 @@ describe("packetTracer module", function() {
     });
 
     it("adds device", function(done) {
-      client.addDevice({group: 'pc', x: 10, y: 20}, function(addedDevice) {
-        expect(addedDevice).toEqual(jasmine.objectContaining({
-          group: 'pcDevice', x: 10, y: 20
-        }));
-        done();
-      }).
-      fail(function() {
-        done.fail("The device could not be added.");
-      });
+      client.addDevice({group: 'pc', x: 10, y: 20}).
+              done(function(addedDevice) {
+                expect(addedDevice).toEqual(jasmine.objectContaining({
+                  group: 'pcDevice', x: 10, y: 20
+                }));
+                done();
+              }).
+              fail(function() {
+                done.fail("The device could not be added.");
+              });
     });
 
     it("removes device", function(done) {
@@ -122,12 +123,16 @@ describe("packetTracer module", function() {
         for (var i=1; i<25; i++) {
           expectedPorts.push('FastEthernet0/' + i);
         }
-        client.getAllPorts(mySwitch, function(ports) {
-          for(var i in ports) {
-            expect(expectedPorts).toContain(ports[i].portName);
-          }
-          done();
-        });
+        client.getAllPorts(mySwitch).
+                done(function(ports) {
+                  for(var i in ports) {
+                    expect(expectedPorts).toContain(ports[i].portName);
+                  }
+                  done();
+                }).
+                fail(function() {
+                  done.fail("The ports could not be retrieved.");
+                });
       });
     });
 
@@ -137,39 +142,41 @@ describe("packetTracer module", function() {
         for (var i=4; i<25; i++) {
           expectedPorts.push('FastEthernet0/' + i);
         }
-        client.getAvailablePorts(mySwitch, function(ports) {
-          for(var i in ports) {
-            expect(expectedPorts).toContain(ports[i].portName);
-          }
-          done();
-        }, function() {
-          done.fail("The ports could not be retrieved.");
-        }, function() {
-          done.fail("The session expired.");
-        });
+        client.getAvailablePorts(mySwitch,
+                                function() {
+                                  done.fail("The ports could not be retrieved.");
+                                }, function() {
+                                  done.fail("The session expired.");
+                                }).
+                done(function(ports) {
+                  for(var i in ports) {
+                    expect(expectedPorts).toContain(ports[i].portName);
+                  }
+                  done();
+                });
       });
     });
 
 
     function getPort(done, deviceName, portName, success) {
       getDevice(done, deviceName, function(device) {
-        client.getAllPorts(device, function(ports) {
-          var retPort = null;
-          for(var i in ports) {
-            if (ports[i].portName===portName) {
-              retPort = ports[i];
-            }
-          }
-          if (retPort==null) {
-            done.fail('Port not found in the device.');
-          } else {
-            success(retPort);
-          }
-        }, function() {
-          done.fail("The ports could not be retrieved.");
-        }, function() {
-          done.fail("The session expired.");
-        });
+        client.getAllPorts(device).
+                done(function(ports) {
+                  var retPort = null;
+                  for(var i in ports) {
+                    if (ports[i].portName===portName) {
+                      retPort = ports[i];
+                    }
+                  }
+                  if (retPort==null) {
+                    done.fail('Port not found in the device.');
+                  } else {
+                    success(retPort);
+                  }
+                }).
+                fail(function() {
+                  done.fail("The ports could not be retrieved.");
+                });
       });
     }
 
@@ -191,7 +198,7 @@ describe("packetTracer module", function() {
     it("links two ports", function(done) {
       getPort(done, 'MySwitch', 'FastEthernet0/5', function(port) {
         getPort(done, 'Switch7', 'FastEthernet0/1', function(port2) {
-          client.createLink(port.url, port2.url, function() {}, function(linkId, linkUrl) {
+          client.createLink(port.url, port2.url, function(linkId, linkUrl) {
               expect(linkId).not.toBeNull();
               expect(linkUrl).not.toBeNull();
               done();
@@ -223,14 +230,16 @@ describe("packetTracer module", function() {
       getNetwork(done, function(network) {
         var d = network.devices[0];
         client.removeDevice(d).done(function() {
-          client.addDevice({group: 'pc', x: 0, y: 0}, function(addedDevice) {
-            expect(addedDevice.group).toBe('pcDevice');
-            expect(addedDevice.x).toBe(0);
-            expect(addedDevice.y).toBe(0);
-            done();
-          }).fail(function(jqXHR, textStatus, errorThrown) {
-            done.fail("The device was not added.");
-          });
+          var l = client.addDevice({group: 'pc', x: 0, y: 0}).
+                  done(function(addedDevice) {
+                    expect(addedDevice.group).toBe('pcDevice');
+                    expect(addedDevice.x).toBe(0);
+                    expect(addedDevice.y).toBe(0);
+                    done();
+                  }).
+                  fail(function(jqXHR, textStatus, errorThrown) {
+                    done.fail("The device was not added.");
+                  });
         }).fail(function() {
           done.fail("The device was not removed.");
         });
@@ -242,14 +251,15 @@ describe("packetTracer module", function() {
       getNetwork(done, function(network) {
         var l = network.edges[0];
         client.removeLink(l).done(function() {
-          client.addDevice({group: 'pc', x: 0, y: 0}, function(addedDevice) {
-            expect(addedDevice.group).toBe('pcDevice');
-            expect(addedDevice.x).toBe(0);
-            expect(addedDevice.y).toBe(0);
-            done();
-          }).fail(function(jqXHR, textStatus, errorThrown) {
-            done.fail("The device was not added.");
-          });
+          client.addDevice({group: 'pc', x: 0, y: 0}).
+                  done(function(addedDevice) {
+                    expect(addedDevice.group).toBe('pcDevice');
+                    expect(addedDevice.x).toBe(0);
+                    expect(addedDevice.y).toBe(0);
+                    done();
+                  }).fail(function(jqXHR, textStatus, errorThrown) {
+                    done.fail("The device was not added.");
+                  });
         }).fail(function() {
           done.fail("The link was not removed.");
         });
