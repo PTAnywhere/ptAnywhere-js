@@ -27,7 +27,6 @@ describe("packetTracer module", function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
       packetTracer.newSession(apiURL, fileToOpen, function(newSessionUrl) {
         sessionUrl = newSessionUrl;
-        console.log("Creating client for session URL " + sessionUrl);
         client = new packetTracer.Client(sessionUrl, function() {
           done.fail("The session has expired.");
         });
@@ -39,6 +38,19 @@ describe("packetTracer module", function() {
       client = null;
       packetTracer.destroySession(sessionUrl, function() {
         done();
+      });
+    });
+
+    it("retrieves network", function(done) {
+      client.getNetwork(function(network) {
+        expect(network.devices.length).toBe(5);
+        expect(network.edges.length).toBe(4);
+        done();
+      },
+      function(tryCount, maxRetries, errorCode) {
+        done.fail("Timeout getting the network.");
+      }).fail(function() {
+        done.fail("The network was not loaded.");
       });
     });
 
