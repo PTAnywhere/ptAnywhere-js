@@ -1,7 +1,7 @@
 describe("packetTracer module", function() {
 
   var apiURL = 'http://192.168.34.202:8080/api/v1';
-  var fileToOpen = 'http://192.168.34.202:8080/files/ibookdemo611.pkt';
+  var fileToOpen = 'http://192.168.34.202:8080/files/newibookdemo.pkt';
 
   it("creates and destroys sessions", function(done) {
 
@@ -54,8 +54,8 @@ describe("packetTracer module", function() {
 
     it("retrieves network", function(done) {
       getNetwork(done, function(network) {
-        expect(network.devices.length).toBe(5);
-        expect(network.edges.length).toBe(4);
+        expect(network.devices.length).toBe(8);
+        expect(network.edges.length).toBe(7);
         done();
       });
     });
@@ -98,6 +98,7 @@ describe("packetTracer module", function() {
         });
       });
     });
+
 
     function getDevice(done, deviceName, success) {
       getNetwork(done, function(network) {
@@ -149,6 +150,7 @@ describe("packetTracer module", function() {
       });
     });
 
+
     function getPort(done, deviceName, portName, success) {
       getDevice(done, deviceName, function(device) {
         client.getAllPorts(device, function(ports) {
@@ -183,6 +185,21 @@ describe("packetTracer module", function() {
           fail(function() {
             done.fail("The port could not be modified.");
           });
+      });
+    });
+
+    it("links two ports", function(done) {
+      getPort(done, 'MySwitch', 'FastEthernet0/5', function(port) {
+        getPort(done, 'Switch7', 'FastEthernet0/1', function(port2) {
+          client.createLink(port.url, port2.url, function() {}, function(linkId, linkUrl) {
+              expect(linkId).not.toBeNull();
+              expect(linkUrl).not.toBeNull();
+              done();
+            }).
+            fail(function() {
+              done.fail("The link could not be created.");
+            });
+        });
       });
     });
 
