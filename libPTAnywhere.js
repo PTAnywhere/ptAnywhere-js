@@ -60,10 +60,20 @@ var packetTracer = (function () {
      */
     function createSession(apiURL, fileToOpen, success) {
         var newSession = { fileUrl: fileToOpen };
-        return postJSON(apiURL + '/sessions', newSession, function(data, status, xhr) {
-            var newSessionURL = xhr.getResponseHeader('Location');
+        return postJSON(apiURL + '/sessions', newSession, function(newSessionURL, status, xhr) {
+            // The following does not work in Jasmine.
+            //var newSessionURL = xhr.getResponseHeader('Location');
             success(newSessionURL);
         }, {});
+    }
+
+    /**
+     * Destroys a session and returns the request object.
+     *   @param sessionURL the base url of the session to be destroyed.
+     *   @param success is a callback which received the URL of the new session as a parameter.
+     */
+    function deleteSession(sessionURL, success) {
+        return deleteHttp(sessionURL, success, {});
     }
 
 
@@ -199,10 +209,11 @@ var packetTracer = (function () {
         done(doneCallback);
     };
 
-    PTClient.prototype.removeLink = function(linkUrl) {
-        return getJSON(linkUrl, function(data) {
+    PTClient.prototype.removeLink = function(link) {
+        return getJSON(link.url, function(data) {
                     deleteHttp(data.endpoints[0] + 'link', function(result) {
                         console.log('The link has been deleted successfully.');
+                        //getJSON(link.url);
                     }, this.customSettings).
                     fail(function(data) {
                         console.error('Something went wrong in the link removal.');
@@ -223,5 +234,6 @@ var packetTracer = (function () {
         TIMEOUT: ERROR_TIMEOUT,
         Client: PTClient,
         newSession: createSession,
+        destroySession: deleteSession,
     };
 })();
