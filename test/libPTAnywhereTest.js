@@ -99,6 +99,31 @@ describe("packetTracer module", function() {
       });
     });
 
+    it("gets available ports for a device", function(done) {
+      getNetwork(done, function(network) {
+        var mySwitch = null;
+        for(var i in network.devices) {
+            if (network.devices[i].label === 'MySwitch') {
+              mySwitch = network.devices[i];
+            }
+        }
+        var expectedPorts = ['Vlan1', 'GigabitEthernet0/1', 'GigabitEthernet0/2'];
+        for (var i=4; i<25; i++) {
+          expectedPorts.push('FastEthernet0/' + i);
+        }
+        client.getAvailablePorts(mySwitch, function(ports) {
+          for(var i in ports) {
+            expect(expectedPorts).toContain(ports[i].portName);
+          }
+          done();
+        }, function() {
+          done.fail("The ports could not be retrieved.");
+        }, function() {
+          done.fail("The session expired.");
+        });
+      });
+    });
+
     // Related issue: https://github.com/PTAnywhere/ptAnywhere-js/issues/1
     it("creates device after deleting device", function(done) {
       getNetwork(done, function(network) {

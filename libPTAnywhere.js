@@ -160,21 +160,6 @@ var packetTracer = (function () {
         });
     };
 
-    PTClient.prototype.modifyPort = function(portURL, ipAddress, subnetMask) {
-         // Send new IP settings
-         var modification = {
-             portIpAddress: ipAddress,
-             portSubnetMask: subnetMask
-         };
-         return putJSON(portURL, modification,
-            function(result) {
-                console.log('The port has been modified successfully.');
-            }, this.customSettings).
-            fail(function(data) {
-                console.error('Something went wrong in the port modification.');
-            });
-    };
-
     PTClient.prototype.getAllPorts = function(device, callback) {
         return getJSON(device.url + 'ports', callback, this.customSettings).
                 fail(function() {
@@ -191,6 +176,21 @@ var packetTracer = (function () {
                         cFail();
                     }
                 });
+    };
+
+    PTClient.prototype.modifyPort = function(portURL, ipAddress, subnetMask) {
+         // Send new IP settings
+         var modification = {
+             portIpAddress: ipAddress,
+             portSubnetMask: subnetMask
+         };
+         return putJSON(portURL, modification,
+            function(result) {
+                console.log('The port has been modified successfully.');
+            }, this.customSettings).
+            fail(function(data) {
+                console.error('Something went wrong in the port modification.');
+            });
     };
 
     PTClient.prototype.createLink = function(fromPortURL, toPortURL, doneCallback, successCallback) {
