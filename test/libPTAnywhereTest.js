@@ -99,14 +99,39 @@ describe("packetTracer module", function() {
       });
     });
 
-    it("gets available ports for a device", function(done) {
+    function getDevice(done, deviceName, success) {
       getNetwork(done, function(network) {
-        var mySwitch = null;
-        for(var i in network.devices) {
-            if (network.devices[i].label === 'MySwitch') {
-              mySwitch = network.devices[i];
+        var retDev = null;
+        for (var i in network.devices) {
+            if (network.devices[i].label === deviceName) {
+              retDev = network.devices[i];
             }
         }
+        if (retDev==null) {
+          done.fail('Device not found in the network.');
+        } else {
+          success(retDev);
+        }
+      });
+    }
+
+    it("gets all ports for a device", function(done) {
+      getDevice(done, 'MySwitch', function(mySwitch) {
+        var expectedPorts = ['Vlan1', 'GigabitEthernet0/1', 'GigabitEthernet0/2'];
+        for (var i=0; i<25; i++) {
+          expectedPorts.push('FastEthernet0/' + i);
+        }
+        client.getAllPorts(mySwitch, function(ports) {
+          for(var i in ports) {
+            expect(expectedPorts).toContain(ports[i].portName);
+          }
+          done();
+        });
+      });
+    });
+
+    it("gets available ports for a device", function(done) {
+      getDevice(done, 'MySwitch', function(mySwitch) {
         var expectedPorts = ['Vlan1', 'GigabitEthernet0/1', 'GigabitEthernet0/2'];
         for (var i=4; i<25; i++) {
           expectedPorts.push('FastEthernet0/' + i);
