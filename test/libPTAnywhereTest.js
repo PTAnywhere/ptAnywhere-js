@@ -3,7 +3,7 @@ describe("packetTracer module", function() {
   var apiURL = 'http://192.168.34.202:8080/api/v1';
   var fileToOpen = 'http://192.168.34.202:8080/files/ibookdemo611.pkt';
 
-  it("creates a new session", function(done) {
+  it("creates and destroys sessions", function(done) {
 
     packetTracer
       .newSession(apiURL, fileToOpen, function(newSessionURL) {
@@ -62,13 +62,40 @@ describe("packetTracer module", function() {
 
     it("adds device", function(done) {
       client.addDevice({group: 'pc', x: 10, y: 20}, function(addedDevice) {
-        expect(addedDevice.group).toBe('pcDevice');
-        expect(addedDevice.x).toBe(10);
-        expect(addedDevice.y).toBe(20);
+        expect(addedDevice).toEqual(jasmine.objectContaining({
+          group: 'pcDevice', x: 10, y: 20
+        }));
         done();
       }).
       fail(function() {
         done.fail("The device could not be added.");
+      });
+    });
+
+    it("removes device", function(done) {
+      getNetwork(done, function(network) {
+        toDelete = network.devices[0];
+        client.removeDevice(toDelete).done(function(deletedDevice) {
+          expect(deletedDevice).toEqual(toDelete);
+          done();
+        }).
+        fail(function() {
+          done.fail("The device could not be deleted.");
+        });
+      });
+    });
+
+    it("modifies device", function(done) {
+      getNetwork(done, function(network) {
+        toModify = network.devices[0];
+        client.modifyDevice(toModify, 'New name', '10.0.0.1', function(modified) {
+          expect(modified.label).toEqual('New name');
+          expect(modified.defaultGateway).toEqual('10.0.0.1');
+          done();
+        }).
+        fail(function() {
+          done.fail("The device could not be modified.");
+        });
       });
     });
 
