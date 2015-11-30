@@ -207,13 +207,15 @@ var packetTracer = (function () {
         done(doneCallback);
     };
 
-    PTClient.prototype.removeLink = function(link) {
+    PTClient.prototype.removeLink = function(link, success, failure) {
         return getJSON(link.url, function(data) {
                     deleteHttp(data.endpoints[0] + 'link', function(result) {
                         console.log('The link has been deleted successfully.');
+                        success(result);
                     }, this.customSettings).
                     fail(function(data) {
                         console.error('Something went wrong in the link removal.');
+                        failure();
                     });
                 }, this.customSettings).
                 fail(function(data) {

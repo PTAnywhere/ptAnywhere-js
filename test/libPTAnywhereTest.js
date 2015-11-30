@@ -203,6 +203,24 @@ describe("packetTracer module", function() {
       });
     });
 
+    it("unlinks two ports", function(done) {
+      getNetwork(done, function(network) {
+        var toDelete = network.edges[0];
+        client.removeLink(toDelete, function(deletedLink) {
+          expect(deletedLink.id).toEqual(toDelete.id);
+          expect(deletedLink.url).toEqual(toDelete.url);
+          expect(deletedLink.from).not.toBeNull();
+          expect(deletedLink.to).not.toBeNull();
+          done();
+        }, function() {
+          done.fail("The link could not be deleted.");
+        }).
+        fail(function() {
+          done.fail("Error getting link details.");
+        });
+      });
+    });
+
     // Related issue: https://github.com/PTAnywhere/ptAnywhere-js/issues/1
     it("creates device after deleting device", function(done) {
       getNetwork(done, function(network) {
