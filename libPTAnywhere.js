@@ -207,20 +207,20 @@ var packetTracer = (function () {
         done(doneCallback);
     };
 
-    PTClient.prototype.removeLink = function(link, success, failure) {
-        return getJSON(link.url, function(data) {
-                    deleteHttp(data.endpoints[0] + 'link', function(result) {
-                        console.log('The link has been deleted successfully.');
-                        success(result);
-                    }, this.customSettings).
-                    fail(function(data) {
-                        console.error('Something went wrong in the link removal.');
-                        failure();
-                    });
-                }, this.customSettings).
-                fail(function(data) {
-                    console.error('Something went wrong getting this link: ' + linkUrl + '.');
-                });
+    PTClient.prototype.removeLink = function(link) {
+        // FIXME issue #4.
+        return getJSON(link.url, this.customSettings).
+                  fail(function(data) {
+                      console.error('Something went wrong getting this link: ' + linkUrl + '.');
+                  }).
+                  then(function(data) {
+                    return deleteHttp(data.endpoints[0] + 'link', function(result) {
+                                console.log('The link has been deleted successfully.');
+                            }, this.customSettings).
+                            fail(function(data) {
+                                console.error('Something went wrong in the link removal.');
+                            });
+                  });
     };
     /* End PTClient */
 
