@@ -60,6 +60,18 @@ describe("packetTracer module", function() {
       });
     });
 
+    it("adds device", function(done) {
+      client.addDevice({group: 'pc', x: 10, y: 20}, function(addedDevice) {
+        expect(addedDevice.group).toBe('pcDevice');
+        expect(addedDevice.x).toBe(10);
+        expect(addedDevice.y).toBe(20);
+        done();
+      }).
+      fail(function() {
+        done.fail("The device could not be added.");
+      });
+    });
+
     // Related issue: https://github.com/PTAnywhere/ptAnywhere-js/issues/1
     it("creates device after deleting device", function(done) {
       getNetwork(done, function(network) {
