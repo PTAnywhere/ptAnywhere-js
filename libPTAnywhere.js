@@ -183,15 +183,11 @@ var packetTracer = (function () {
                 });
     };
 
-    PTClient.prototype.createLink = function(fromPortURL, toPortURL, successCallback) {
+    PTClient.prototype.createLink = function(fromPortURL, toPortURL) {
         var modification = {
             toPort: toPortURL
         };
         return postJSON(fromPortURL + 'link', modification, this.customSettings).
-                done(function(response) {
-                    console.log('The link has been created successfully.');
-                    successCallback(response.id, response.url);
-                }).
                 fail(function() {
                     console.error('Something went wrong in the link creation.');
                 });

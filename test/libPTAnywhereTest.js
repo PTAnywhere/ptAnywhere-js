@@ -62,27 +62,28 @@ describe("packetTracer module", function() {
 
     it("adds device", function(done) {
       client.addDevice({group: 'pc', x: 10, y: 20}).
-              done(function(addedDevice) {
-                expect(addedDevice).toEqual(jasmine.objectContaining({
-                  group: 'pcDevice', x: 10, y: 20
-                }));
-                done();
-              }).
-              fail(function() {
-                done.fail("The device could not be added.");
-              });
+        done(function(addedDevice) {
+          expect(addedDevice).toEqual(jasmine.objectContaining({
+            group: 'pcDevice', x: 10, y: 20
+          }));
+          done();
+        }).
+        fail(function() {
+          done.fail("The device could not be added.");
+        });
     });
 
     it("removes device", function(done) {
       getNetwork(done, function(network) {
         toDelete = network.devices[0];
-        client.removeDevice(toDelete).done(function(deletedDevice) {
-          expect(deletedDevice).toEqual(toDelete);
-          done();
-        }).
-        fail(function() {
-          done.fail("The device could not be deleted.");
-        });
+        client.removeDevice(toDelete).
+          done(function(deletedDevice) {
+            expect(deletedDevice).toEqual(toDelete);
+            done();
+          }).
+          fail(function() {
+            done.fail("The device could not be deleted.");
+          });
       });
     });
 
@@ -90,14 +91,14 @@ describe("packetTracer module", function() {
       getNetwork(done, function(network) {
         toModify = network.devices[0];
         client.modifyDevice(toModify, 'New name', '10.0.0.1').
-        done(function(modified) {
-          expect(modified.label).toEqual('New name');
-          expect(modified.defaultGateway).toEqual('10.0.0.1');
-          done();
-        }).
-        fail(function() {
-          done.fail("The device could not be modified.");
-        });
+          done(function(modified) {
+            expect(modified.label).toEqual('New name');
+            expect(modified.defaultGateway).toEqual('10.0.0.1');
+            done();
+          }).
+          fail(function() {
+            done.fail("The device could not be modified.");
+          });
       });
     });
 
@@ -125,15 +126,15 @@ describe("packetTracer module", function() {
           expectedPorts.push('FastEthernet0/' + i);
         }
         client.getAllPorts(mySwitch).
-                done(function(ports) {
-                  for(var i in ports) {
-                    expect(expectedPorts).toContain(ports[i].portName);
-                  }
-                  done();
-                }).
-                fail(function() {
-                  done.fail("The ports could not be retrieved.");
-                });
+          done(function(ports) {
+            for(var i in ports) {
+              expect(expectedPorts).toContain(ports[i].portName);
+            }
+            done();
+          }).
+          fail(function() {
+            done.fail("The ports could not be retrieved.");
+          });
       });
     });
 
@@ -144,15 +145,15 @@ describe("packetTracer module", function() {
           expectedPorts.push('FastEthernet0/' + i);
         }
         client.getAvailablePorts(mySwitch).
-                done(function(ports) {
-                  for(var i in ports) {
-                    expect(expectedPorts).toContain(ports[i].portName);
-                  }
-                  done();
-                }).
-                fail(function(error) {
-                    done.fail("The ports could not be retrieved.");
-                });
+          done(function(ports) {
+            for(var i in ports) {
+              expect(expectedPorts).toContain(ports[i].portName);
+            }
+            done();
+          }).
+          fail(function(error) {
+              done.fail("The ports could not be retrieved.");
+          });
       });
     });
 
@@ -160,22 +161,22 @@ describe("packetTracer module", function() {
     function getPort(done, deviceName, portName, success) {
       getDevice(done, deviceName, function(device) {
         client.getAllPorts(device).
-                done(function(ports) {
-                  var retPort = null;
-                  for(var i in ports) {
-                    if (ports[i].portName===portName) {
-                      retPort = ports[i];
-                    }
-                  }
-                  if (retPort==null) {
-                    done.fail('Port not found in the device.');
-                  } else {
-                    success(retPort);
-                  }
-                }).
-                fail(function() {
-                  done.fail("The ports could not be retrieved.");
-                });
+          done(function(ports) {
+            var retPort = null;
+            for(var i in ports) {
+              if (ports[i].portName===portName) {
+                retPort = ports[i];
+              }
+            }
+            if (retPort==null) {
+              done.fail('Port not found in the device.');
+            } else {
+              success(retPort);
+            }
+          }).
+          fail(function() {
+            done.fail("The ports could not be retrieved.");
+          });
       });
     }
 
@@ -197,9 +198,10 @@ describe("packetTracer module", function() {
     it("links two ports", function(done) {
       getPort(done, 'MySwitch', 'FastEthernet0/5', function(port) {
         getPort(done, 'Switch7', 'FastEthernet0/1', function(port2) {
-          client.createLink(port.url, port2.url, function(linkId, linkUrl) {
-              expect(linkId).not.toBeNull();
-              expect(linkUrl).not.toBeNull();
+          client.createLink(port.url, port2.url).
+            done(function(link) {
+              expect(link.id).not.toBeNull();
+              expect(link.url).not.toBeNull();
               done();
             }).
             fail(function() {
@@ -212,15 +214,17 @@ describe("packetTracer module", function() {
     it("unlinks two ports", function(done) {
       getNetwork(done, function(network) {
         var toDelete = network.edges[0];
-        client.removeLink(toDelete).done(function(deletedLink) {
-          expect(deletedLink.id).toEqual(toDelete.id);
-          expect(deletedLink.url).toEqual(toDelete.url);
-          expect(deletedLink.from).not.toBeNull();
-          expect(deletedLink.to).not.toBeNull();
-          done();
-        }).fail(function() {
-          done.fail("The link could not be deleted.");
-        });
+        client.removeLink(toDelete).
+          done(function(deletedLink) {
+            expect(deletedLink.id).toEqual(toDelete.id);
+            expect(deletedLink.url).toEqual(toDelete.url);
+            expect(deletedLink.from).not.toBeNull();
+            expect(deletedLink.to).not.toBeNull();
+            done();
+          }).
+          fail(function() {
+            done.fail("The link could not be deleted.");
+          });
       });
     });
 
@@ -228,20 +232,22 @@ describe("packetTracer module", function() {
     it("creates device after deleting device", function(done) {
       getNetwork(done, function(network) {
         var d = network.devices[0];
-        client.removeDevice(d).done(function() {
-          var l = client.addDevice({group: 'pc', x: 0, y: 0}).
-                  done(function(addedDevice) {
-                    expect(addedDevice.group).toBe('pcDevice');
-                    expect(addedDevice.x).toBe(0);
-                    expect(addedDevice.y).toBe(0);
-                    done();
-                  }).
-                  fail(function(jqXHR, textStatus, errorThrown) {
-                    done.fail("The device was not added.");
-                  });
-        }).fail(function() {
-          done.fail("The device was not removed.");
-        });
+        client.removeDevice(d).
+          done(function() {
+            var l = client.addDevice({group: 'pc', x: 0, y: 0}).
+                    done(function(addedDevice) {
+                      expect(addedDevice.group).toBe('pcDevice');
+                      expect(addedDevice.x).toBe(0);
+                      expect(addedDevice.y).toBe(0);
+                      done();
+                    }).
+                    fail(function(jqXHR, textStatus, errorThrown) {
+                      done.fail("The device was not added.");
+                    });
+          }).
+          fail(function() {
+            done.fail("The device was not removed.");
+          });
       });
     });
 
@@ -249,19 +255,21 @@ describe("packetTracer module", function() {
     it("creates device after deleting link", function(done) {
       getNetwork(done, function(network) {
         var l = network.edges[0];
-        client.removeLink(l).done(function() {
-          client.addDevice({group: 'pc', x: 0, y: 0}).
-                  done(function(addedDevice) {
-                    expect(addedDevice.group).toBe('pcDevice');
-                    expect(addedDevice.x).toBe(0);
-                    expect(addedDevice.y).toBe(0);
-                    done();
-                  }).fail(function(jqXHR, textStatus, errorThrown) {
-                    done.fail("The device was not added.");
-                  });
-        }).fail(function() {
-          done.fail("The link was not removed.");
-        });
+        client.removeLink(l).
+          done(function() {
+            client.addDevice({group: 'pc', x: 0, y: 0}).
+                    done(function(addedDevice) {
+                      expect(addedDevice.group).toBe('pcDevice');
+                      expect(addedDevice.x).toBe(0);
+                      expect(addedDevice.y).toBe(0);
+                      done();
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                      done.fail("The device was not added.");
+                    });
+          }).
+          fail(function() {
+            done.fail("The link was not removed.");
+          });
       });
     });
 
