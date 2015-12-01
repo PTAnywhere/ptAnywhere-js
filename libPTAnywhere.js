@@ -170,15 +170,8 @@ var packetTracer = (function () {
                 });
     };
 
-    PTClient.prototype.getAvailablePorts = function(device, cFail, cSessionExpired) {
-        return getJSON(device.url + 'ports?free=true', this.customSettings).
-                fail(function(data) {
-                    if (data.status==410) {
-                        cSessionExpired();
-                    } else {
-                        cFail();
-                    }
-                });
+    PTClient.prototype.getAvailablePorts = function(device) {
+        return getJSON(device.url + 'ports?free=true', this.customSettings);
     };
 
     PTClient.prototype.modifyPort = function(portURL, ipAddress, subnetMask) {

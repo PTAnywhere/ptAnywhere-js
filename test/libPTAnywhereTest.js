@@ -142,17 +142,15 @@ describe("packetTracer module", function() {
         for (var i=4; i<25; i++) {
           expectedPorts.push('FastEthernet0/' + i);
         }
-        client.getAvailablePorts(mySwitch,
-                                function() {
-                                  done.fail("The ports could not be retrieved.");
-                                }, function() {
-                                  done.fail("The session expired.");
-                                }).
+        client.getAvailablePorts(mySwitch).
                 done(function(ports) {
                   for(var i in ports) {
                     expect(expectedPorts).toContain(ports[i].portName);
                   }
                   done();
+                }).
+                fail(function(error) {
+                    done.fail("The ports could not be retrieved.");
                 });
       });
     });
