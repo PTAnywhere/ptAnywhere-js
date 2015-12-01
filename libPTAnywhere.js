@@ -5,8 +5,8 @@
  */
 var packetTracer = (function () {
 
-    var ERROR_UNAVAILABLE = 1;
-    var ERROR_TIMEOUT = 2;
+    /** @const */ var ERROR_UNAVAILABLE = 1;
+    /** @const */ var ERROR_TIMEOUT = 2;
 
     // Private utility functions
     function requestJSON(verb, url, data, customSettings) {
@@ -51,10 +51,14 @@ var packetTracer = (function () {
 
     // Session-level operations
     /**
-     * Creates a new session and returns the request object.
-     *   @param apiURL the base url of the HTTP API.
-     *   @param fileToOpen URL of the file to be opened at the beginning.
-     *   @param success is a callback which received the URL of the new session as a parameter.
+     * Creates a new session.
+     *   @param {string} apiURL
+     *          Base URL of the HTTP API.
+     *   @param {string} fileToOpen
+     *          URL of the file to be opened at the beginning of the session.
+     *   @param {function(string)} success
+     *          Callback which receives the URL of the new session as a parameter.
+     *   @return {jQuery.Deferred}
      */
     function createSession(apiURL, fileToOpen, success) {
         var newSession = { fileUrl: fileToOpen };
@@ -67,12 +71,13 @@ var packetTracer = (function () {
     }
 
     /**
-     * Destroys a session and returns the request object.
-     *   @param sessionURL the base url of the session to be destroyed.
-     *   @param success is a callback which received the URL of the new session as a parameter.
+     * Destroys a session and returns a jQuery  request object.
+     *   @param {string} sessionURL
+     *        URL of the session to be destroyed.
+     *   @return {jQuery.Deferred}
      */
-    function deleteSession(sessionURL, success) {
-        return deleteHttp(sessionURL, {}).done(success);
+    function deleteSession(sessionURL) {
+        return deleteHttp(sessionURL, {});
     }
 
 

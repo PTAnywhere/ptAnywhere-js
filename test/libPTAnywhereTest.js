@@ -10,9 +10,10 @@ describe("packetTracer module", function() {
         // For some reason, when called using Jasmine
         // xhr.getAllResponseHeaders() does not return the 'Location' header
         expect(newSessionURL).not.toBe(null);
-        packetTracer.destroySession(newSessionURL, function() {
-          done();
-        });
+        packetTracer.destroySession(newSessionURL).
+          done(function() {
+            done();
+          });
       })
       .fail(function() {
         done.fail("Session creation has failed.");
@@ -36,9 +37,10 @@ describe("packetTracer module", function() {
 
     afterEach(function(done) {
       client = null;
-      packetTracer.destroySession(sessionUrl, function() {
-        done();
-      });
+      packetTracer.destroySession(sessionUrl).
+        done(function() {
+          done();
+        });
     });
 
 
