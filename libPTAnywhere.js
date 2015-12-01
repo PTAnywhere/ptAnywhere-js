@@ -73,7 +73,7 @@ var packetTracer = (function () {
     /**
      * Destroys a session and returns a jQuery  request object.
      *   @param {string} sessionURL
-     *        URL of the session to be destroyed.
+     *          URL of the session to be destroyed.
      *   @return {jQuery.Deferred}
      */
     function deleteSession(sessionURL) {
@@ -84,19 +84,33 @@ var packetTracer = (function () {
     // Publicly exposed class with methods which call API resources
 
     /* Begin PTClient */
-    function PTClient(apiURL, sessionExpirationCallback) {
-        this.apiURL = apiURL;
+    /**
+     * Creates a PTClient object.
+     *   @param {string} sessionURL
+     *          URL of the session that the client will use.
+     *   @param {function()} onSessionExpired
+   *            Callback to be called when the session expires.
+     */
+    function PTClient(sessionURL, onSessionExpired) {
+        this.apiURL = sessionURL;
         this.customSettings = { // Custom values
             statusCode: {
-                410: sessionExpirationCallback
+                410: onSessionExpired
             }
         };
     }
 
     /**
-       * @arg callback If it is null, it is simply ignored.
-       */
-    PTClient.prototype.getNetwork = function(callback, beforeRetry) {
+     * Retrieves the current network topology.
+     *   @param {function(number, number, number)} beforeRetry
+     *          Function which will be called before a each retry.
+     *          The first parameter is the current retry count.
+     *          The second is the maximum number of retries.
+     *          The third parameter corresponds with the type of error why
+     *          the previous attempt failed: UNAVAILABLE or TIMEOUT.
+     *   @return {jQuery.Deferred}
+     */
+    PTClient.prototype.getNetwork = function(beforeRetry) {
         var maxRetries = 5;
         var delayBetweenRetries = 2000;
         var sessionExpirationCallback = this.customSettings.statusCode['410'];
@@ -128,7 +142,7 @@ var packetTracer = (function () {
                 }
             }
         };
-        return getJSON(this.apiURL + '/network', moreSpecificSettings).done(callback);
+        return getJSON(this.apiURL + '/network', moreSpecificSettings);
     };
 
     PTClient.prototype.addDevice = function(newDevice) {

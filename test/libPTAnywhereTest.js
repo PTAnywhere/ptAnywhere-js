@@ -45,13 +45,14 @@ describe("packetTracer module", function() {
 
 
     function getNetwork(done, success) {
-      client.getNetwork(success,
+      client.getNetwork(
         function(tryCount, maxRetries, errorCode) {
           done.fail("Timeout getting the network.");
         }).
-      fail(function() {
-        done.fail("The network was not loaded.");
-      });
+        done(success).
+        fail(function() {
+          done.fail("The network was not loaded.");
+        });
     }
 
     it("retrieves network", function(done) {
