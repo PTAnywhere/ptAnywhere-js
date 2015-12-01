@@ -140,17 +140,17 @@ var packetTracer = (function () {
                 });
     };
 
-    PTClient.prototype.modifyDevice = function(device, deviceLabel, defaultGateway, callback) { // modify
+    PTClient.prototype.modifyDevice = function(device, deviceLabel, defaultGateway) { // modify
         // General settings: PUT to /devices/id
         var modification = { label: deviceLabel };
         if (defaultGateway!="") {
             modification.defaultGateway = defaultGateway;
         }
         return putJSON(device.url, modification, this.customSettings).
-                done(function(result) {
-                    console.log('The device has been modified successfully.');
-                    result.defaultGateway = defaultGateway;  // FIXME PTPIC library!
-                    callback(result);  // As the device has the same id, it should replace the older one.
+                done(function(modifiedDevice) {
+                    // FIXME This patch wouldn't be necessary if PTPIC library worked properly.
+                    // NOTE: In subsequent .done's modifiedDevice will be received fixed.
+                    modifiedDevice.defaultGateway = defaultGateway;
                 }).
                 fail(function() {
                     console.error('Something went wrong in the device modification.');

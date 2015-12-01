@@ -89,7 +89,8 @@ describe("packetTracer module", function() {
     it("modifies device", function(done) {
       getNetwork(done, function(network) {
         toModify = network.devices[0];
-        client.modifyDevice(toModify, 'New name', '10.0.0.1', function(modified) {
+        client.modifyDevice(toModify, 'New name', '10.0.0.1').
+        done(function(modified) {
           expect(modified.label).toEqual('New name');
           expect(modified.defaultGateway).toEqual('10.0.0.1');
           done();
