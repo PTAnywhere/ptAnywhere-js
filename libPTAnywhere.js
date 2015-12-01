@@ -56,22 +56,22 @@ var packetTracer = (function () {
      *          Base URL of the HTTP API.
      *   @param {string} fileToOpen
      *          URL of the file to be opened at the beginning of the session.
-     *   @param {function(string)} success
-     *          Callback which receives the URL of the new session as a parameter.
+     *   @param {function(string)} onSuccess
+     *          Function which will receive the URL of the new session as a parameter.
      *   @return {jQuery.Deferred}
      */
-    function createSession(apiURL, fileToOpen, success) {
+    function createSession(apiURL, fileToOpen, onSuccess) {
         var newSession = { fileUrl: fileToOpen };
         return postJSON(apiURL + '/sessions', newSession, {}).
                   done(function(newSessionURL, status, xhr) {
                     // The following does not work in Jasmine.
                     //var newSessionURL = xhr.getResponseHeader('Location');
-                    success(newSessionURL);
+                    onSuccess(newSessionURL);
                   });
     }
 
     /**
-     * Destroys a session and returns a jQuery  request object.
+     * Destroys a session.
      *   @param {string} sessionURL
      *          URL of the session to be destroyed.
      *   @return {jQuery.Deferred}
@@ -145,6 +145,11 @@ var packetTracer = (function () {
         return getJSON(this.apiURL + '/network', moreSpecificSettings);
     };
 
+    /**
+     * Creates a new device in the current topology.
+     *   @param {Device} newDevice
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.addDevice = function(newDevice) {
         return postJSON( this.apiURL + '/devices', newDevice, this.customSettings).
                 fail(function() {
@@ -152,6 +157,12 @@ var packetTracer = (function () {
                 });
     };
 
+    /**
+     * Removes the device from the current topology.
+     *   @param {Device} device
+     *          Device to be removed.
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.removeDevice = function(device) {
         return deleteHttp(device.url, this.customSettings).
                 fail(function() {
@@ -159,6 +170,16 @@ var packetTracer = (function () {
                 });
     };
 
+    /**
+     * Modifies a device.
+     *   @param {Device} device
+     *          Device to be modified.
+     *   @param {string} deviceLabel
+     *          New name of the device.
+     *   @param {string} defaultGateway
+     *          New default gateway for the device.
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.modifyDevice = function(device, deviceLabel, defaultGateway) { // modify
         // General settings: PUT to /devices/id
         var modification = { label: deviceLabel };
@@ -176,6 +197,11 @@ var packetTracer = (function () {
                 });
     };
 
+    /**
+     * Returns a list with all the ports of a given device.
+     *   @param {Device} device
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.getAllPorts = function(device) {
         return getJSON(device.url + 'ports', this.customSettings).
                 fail(function() {
@@ -183,6 +209,11 @@ var packetTracer = (function () {
                 });
     };
 
+    /**
+     * Returns a list with all the available ports of a given device.
+     *   @param {Device} device
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.getAvailablePorts = function(device) {
         return getJSON(device.url + 'ports?free=true', this.customSettings).
                 fail(function() {
@@ -190,6 +221,16 @@ var packetTracer = (function () {
                 });
     };
 
+    /**
+     * Modifies the details of a given port.
+     *   @param {string} portURL
+     *          URL of the port to be modified.
+     *   @param {string} ipAddress
+     *          New IP address for the port.
+     *   @param {string} subnetMask
+     *          New subnet mask for the port.
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.modifyPort = function(portURL, ipAddress, subnetMask) {
          // Send new IP settings
          var modification = {
@@ -202,6 +243,14 @@ var packetTracer = (function () {
                 });
     };
 
+    /**
+     * Connects two ports and returns the new link.
+     *   @param {string} fromPortURL
+     *          URL of the first port to connect (endpoint 1).
+     *   @param {string} toPortURL
+     *          URL of the second port to connect (endpoint 2).
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.createLink = function(fromPortURL, toPortURL) {
         var modification = {
             toPort: toPortURL
@@ -212,6 +261,12 @@ var packetTracer = (function () {
                 });
     };
 
+    /**
+     * Removes a link between two ports.
+     *   @param {Link} link
+     *          Link to be removed.
+     *   @return {jQuery.Deferred}
+     */
     PTClient.prototype.removeLink = function(link) {
         // FIXME issue #4.
         return getJSON(link.url, this.customSettings).
@@ -234,8 +289,17 @@ var packetTracer = (function () {
         //   2. To allow having more than a client in the same application (although I am not sure whether this will be ever needed).
         UNAVAILABLE: ERROR_UNAVAILABLE,
         TIMEOUT: ERROR_TIMEOUT,
+        /**
+         * Client class for a PTAnywhere session.
+         */
         Client: PTClient,
+        /**
+         * Creates a new session in a PTAnywhere API.
+         */
         newSession: createSession,
+        /**
+         * Destroys a PTAnywhere session.
+         */
         destroySession: deleteSession,
     };
 })();
