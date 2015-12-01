@@ -128,20 +128,14 @@ var packetTracer = (function () {
 
     PTClient.prototype.addDevice = function(newDevice) {
         return postJSON( this.apiURL + '/devices', newDevice, this.customSettings).
-                done(function(data) {
-                  console.log('The device was created successfully.');
-                }).
-                fail(function(data) {
-                  console.error('Something went wrong in the device creation.');
+                fail(function() {
+                    console.error('Something went wrong in the device creation.');
                 });
     };
 
     PTClient.prototype.removeDevice = function(device) {
         return deleteHttp(device.url, this.customSettings).
-                done(function(result) {
-                    console.log('The device has been deleted successfully.');
-                }).
-                fail(function(data) {
+                fail(function() {
                     console.error('Something went wrong in the device removal.');
                 });
     };
@@ -158,7 +152,7 @@ var packetTracer = (function () {
                     result.defaultGateway = defaultGateway;  // FIXME PTPIC library!
                     callback(result);  // As the device has the same id, it should replace the older one.
                 }).
-                fail(function(data) {
+                fail(function() {
                     console.error('Something went wrong in the device modification.');
                 });
     };
@@ -171,7 +165,10 @@ var packetTracer = (function () {
     };
 
     PTClient.prototype.getAvailablePorts = function(device) {
-        return getJSON(device.url + 'ports?free=true', this.customSettings);
+        return getJSON(device.url + 'ports?free=true', this.customSettings).
+                fail(function() {
+                    console.error('Something went wrong getting this devices\' available ports ' + device.id + '.');
+                });
     };
 
     PTClient.prototype.modifyPort = function(portURL, ipAddress, subnetMask) {
@@ -181,10 +178,7 @@ var packetTracer = (function () {
              portSubnetMask: subnetMask
          };
          return putJSON(portURL, modification, this.customSettings).
-                done(function(result) {
-                    console.log('The port has been modified successfully.');
-                }).
-                fail(function(data) {
+                fail(function() {
                     console.error('Something went wrong in the port modification.');
                 });
     };
@@ -198,7 +192,7 @@ var packetTracer = (function () {
                     console.log('The link has been created successfully.');
                     successCallback(response.id, response.url);
                 }).
-                fail(function(data) {
+                fail(function() {
                     console.error('Something went wrong in the link creation.');
                 });
     };
@@ -211,10 +205,7 @@ var packetTracer = (function () {
                   }).
                   then(function(data) {
                     return deleteHttp(data.endpoints[0] + 'link', this.customSettings).
-                            done(function(result) {
-                                console.log('The link has been deleted successfully.');
-                            }).
-                            fail(function(data) {
+                            fail(function() {
                                 console.error('Something went wrong in the link removal.');
                             });
                   });
