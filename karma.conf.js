@@ -16,8 +16,9 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'bower_components/jquery/jquery.min.js',
-      '*.js',  // The file to be tested
-      'test/libPTAnywhereTest.js',
+      'js/*.js',  // The files to be tested
+      'test/libPTAnywhere-http.js',
+      'test/libPTAnywhere-websocket.js',
     ],
 
 

@@ -1,16 +1,16 @@
-describe("packetTracer module", function() {
+describe("PTAnywhere-HTTP module", function() {
 
   var apiURL = 'http://192.168.34.202:8080/api/v1';
   var fileToOpen = 'http://192.168.34.202:8080/files/newibookdemo.pkt';
 
   it("creates and destroys sessions", function(done) {
 
-    packetTracer
+    ptAnywhere.http
       .newSession(apiURL, fileToOpen, function(newSessionURL) {
         // For some reason, when called using Jasmine
         // xhr.getAllResponseHeaders() does not return the 'Location' header
         expect(newSessionURL).not.toBe(null);
-        packetTracer.destroySession(newSessionURL).
+        ptAnywhere.http.destroySession(newSessionURL).
           done(function() {
             done();
           });
@@ -26,9 +26,9 @@ describe("packetTracer module", function() {
 
     beforeEach(function(done) {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-      packetTracer.newSession(apiURL, fileToOpen, function(newSessionUrl) {
+      ptAnywhere.http.newSession(apiURL, fileToOpen, function(newSessionUrl) {
         sessionUrl = newSessionUrl;
-        client = new packetTracer.Client(sessionUrl, function() {
+        client = new ptAnywhere.http.Client(sessionUrl, function() {
           done.fail("The session has expired.");
         });
         done();
@@ -37,7 +37,7 @@ describe("packetTracer module", function() {
 
     afterEach(function(done) {
       client = null;
-      packetTracer.destroySession(sessionUrl).
+      ptAnywhere.http.destroySession(sessionUrl).
         done(function() {
           done();
         });
