@@ -43,11 +43,10 @@ describe("PTAnywhere-WebSocket module", function() {
   });
 
   function getNetwork(done, success) {
-    client.getNetwork(
+    client.getNetwork(success,
       function(tryCount, maxRetries, errorCode) {
         done.fail("Timeout getting the network.");
       }).
-      done(success).
       fail(function() {
         done.fail("The network was not loaded.");
       });
