@@ -6,7 +6,7 @@ describe("PTAnywhere-HTTP module", function() {
   it("creates and destroys sessions", function(done) {
 
     ptAnywhere.http
-      .newSession(apiURL, fileToOpen, function(newSessionURL) {
+      .newSession(apiURL, fileToOpen, 'previousSession', function(newSessionURL) {
         // For some reason, when called using Jasmine
         // xhr.getAllResponseHeaders() does not return the 'Location' header
         expect(newSessionURL).not.toBe(null);
@@ -26,7 +26,7 @@ describe("PTAnywhere-HTTP module", function() {
 
     beforeEach(function(done) {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
-      ptAnywhere.http.newSession(apiURL, fileToOpen, function(newSessionUrl) {
+      ptAnywhere.http.newSession(apiURL, fileToOpen, null, function(newSessionUrl) {
         sessionUrl = newSessionUrl;
         client = new ptAnywhere.http.Client(sessionUrl, function() {
           done.fail("The session has expired.");

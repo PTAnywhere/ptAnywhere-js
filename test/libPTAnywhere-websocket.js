@@ -25,7 +25,7 @@ describe("PTAnywhere-WebSocket module", function() {
   beforeEach(function(done) {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
     scheduler.reset();
-    ptAnywhere.http.newSession(apiURL, fileToOpen, function(newSessionUrl) {
+    ptAnywhere.http.newSession(apiURL, fileToOpen, null, function(newSessionUrl) {
       sessionUrl = newSessionUrl;
       client = new ptAnywhere.http.Client(sessionUrl, function() {
         done.fail("The session has expired.");
