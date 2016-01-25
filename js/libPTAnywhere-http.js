@@ -71,7 +71,7 @@ ptAnywhere.http = (function () {
         if (previousSessionId!=null) {
             newSession.sameUserAsInSession = previousSessionId;
         }
-        return postJSON(apiURL + '/sessions', newSession, {}).
+        return postJSON(apiURL + '/sessions', newSession, {timeout: 10000}).
                   done(function(newSessionURL, status, xhr) {
                     // The following does not work in Jasmine.
                     //var newSessionURL = xhr.getResponseHeader('Location');
