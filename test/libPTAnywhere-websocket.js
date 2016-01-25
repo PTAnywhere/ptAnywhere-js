@@ -46,6 +46,9 @@ describe("PTAnywhere-WebSocket module", function() {
     client.getNetwork(success,
       function(tryCount, maxRetries, errorCode) {
         done.fail("Timeout getting the network.");
+      },
+      function() {
+        done.fail("Retry limit reached.");
       }).
       fail(function() {
         done.fail("The network was not loaded.");
