@@ -124,7 +124,7 @@ ptAnywhere.websocket = (function () {
         };
 
         ws.onclose = function (event) {
-            console.warn('Info: WebSocket connection closed, Code: ' + event.code + (event.reason == '' ? '' : ', Reason: ' + event.reason));
+            console.warn('WebSocket connection closed, Code: ' + event.code + (event.reason == '' ? '' : ', Reason: ' + event.reason));
             callbacks.warning('Connection closed. ' +  event.reason);
         };
     }
