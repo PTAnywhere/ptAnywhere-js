@@ -2,6 +2,8 @@
 
 Javascript client for the [PTAnywhere API](https://github.com/PTAnywhere/ptAnywhere-api).
 
+### NOTE: this library is no longer used. Instead, check submodules _ptAnywhere.api.http_ and _ptAnywhere.api.websocket_ in [ptAnywhere-widget v2.x](https://github.com/PTAnywhere/ptAnywhere-widget/releases).
+
 
 ## Download dependencies
 
